@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Kuma Organiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --kb:#5B6FF5;--kb-l:#E8EAFF;--kb-m:#8B9BF8;--kb-d:#3D50D0;
+  --kg:#4CAF50;--kg-l:#E8F5E9;
+  --ky:#FFB800;--ky-l:#FFF8E1;
+  --ko:#FF7043;--ko-l:#FFF3E0;
+  --kteal:#00BCD4;--kteal-l:#E0F7FA;
+  --kpink:#E91E8C;--kpink-l:#FCE4F0;
+  --kbg:#F4F6FF;--kw:#FFFFFF;--kbr:#C8CFFF;
+  --kt:#2D3060;--km:#7B80B0;
+}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--kbg);color:var(--kt);overflow:hidden}
+
+/* ── SHELL ── */
+.shell{display:grid;grid-template-columns:90px 1fr;height:100vh}
+.sidenav{background:var(--kw);border-right:2px solid var(--kbr);display:flex;flex-direction:column;align-items:center;padding:16px 6px 20px;gap:2px;z-index:10}
+.nav-logo{width:52px;height:52px;background:var(--kb);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;cursor:pointer;flex-shrink:0}
+.ni{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 6px;border-radius:13px;cursor:pointer;width:74px;color:var(--km);transition:all .15s;border:none;background:none;font-family:'Nunito',sans-serif;flex-shrink:0}
+.ni:hover{background:var(--kb-l)}
+.ni.active{background:var(--kb-l);color:var(--kb)}
+.ni i{font-size:22px}
+.ni span{font-size:9.5px;font-weight:800;letter-spacing:.04em;text-align:center}
+.ni.danger{color:#c0392b}
+.ni.danger:hover{background:#FDECEA}
+
+.content{overflow:hidden;height:100vh}
+.page{display:none;height:100%;overflow-y:auto}
+.page.active{display:grid}
+
+/* ── DASHBOARD PAGE ── */
+#pg-dashboard{grid-template-columns:1fr 276px}
+.dash-main{padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.dash-right{background:var(--kw);border-left:2px solid var(--kbr);padding:16px 13px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+
+/* ── CALENDAR PAGE ── */
+#pg-calendar{grid-template-columns:1fr}
+
+/* ── MAP PAGE ── */
+#pg-map{grid-template-columns:1fr 270px}
+.map-main{padding:16px 14px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.map-right{background:var(--kw);border-left:2px solid var(--kbr);padding:16px 12px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+
+/* ── TEA HOUSE PAGE ── */
+#pg-tea{grid-template-columns:1fr}
+
+/* ── SETTINGS PAGE ── */
+#pg-settings{grid-template-columns:1fr}
+
+/* ── SHARED COMPONENTS ── */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.page-title{font-family:'Fredoka One',cursive;font-size:20px;color:var(--kb);letter-spacing:.03em}
+.badge-pill{background:var(--kb);color:#fff;font-size:10px;font-weight:800;padding:4px 12px;border-radius:20px;letter-spacing:.05em}
+
+.card{background:var(--kw);border:2px solid var(--kbr);border-radius:16px;padding:13px 14px}
+.sec-lbl{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--km);margin-bottom:9px}
+.ptitle{font-family:'Fredoka One',cursive;font-size:14px;color:var(--kb)}
+
+/* stats row */
+.stats-row{display:grid;gap:8px}
+.stats-row.cols3{grid-template-columns:repeat(3,1fr)}
+.stats-row.cols2{grid-template-columns:repeat(2,1fr)}
+.stat-card{background:var(--kw);border:2px solid var(--kbr);border-radius:14px;padding:10px 12px;text-align:center}
+.stat-v{font-family:'Fredoka One',cursive;font-size:22px;line-height:1}
+.stat-l{font-size:9.5px;font-weight:800;color:var(--km);letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+
+/* streak */
+.streak-card{background:var(--ky);border-radius:14px;padding:11px 14px;display:flex;align-items:center;gap:10px}
+.streak-card i{font-size:24px;color:#fff}
+.s-num{font-family:'Fredoka One',cursive;font-size:30px;color:#fff;line-height:1}
+.s-lbl{font-size:10px;font-weight:800;color:rgba(255,255,255,.85);letter-spacing:.06em;text-transform:uppercase}
+
+/* mascot */
+.mascot-wrap{border:2px solid var(--kbr);border-radius:16px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--kb-l);transition:background .4s,border-color .4s}
+.mascot-wrap.celebrate{background:#E8F5E9;border-color:#A5D6A7}
+.mascot-wrap.alert{background:#FFF3E0;border-color:#FFCC80}
+.mood-badge{font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:8px;background:var(--kb-l);color:var(--kb)}
+.mood-badge.celebrate{background:#E8F5E9;color:#2E7D32}
+.mood-badge.alert{background:#FFF3E0;color:#E65100}
+.kuma-tip{font-size:11px;font-weight:700;color:var(--kt);text-align:center;line-height:1.4}
+
+/* equipped item overlay */
+.equip-bar{width:100%;border-top:1px solid var(--kbr);padding-top:8px;margin-top:2px}
+.equip-lbl{font-size:9px;font-weight:900;color:var(--km);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px;text-align:center}
+.equip-row{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.equip-chip{padding:3px 9px;border-radius:8px;font-size:10px;font-weight:800;cursor:pointer;border:2px solid var(--kbr);background:var(--kw);color:var(--km);transition:all .15s}
+.equip-chip.active{border-color:var(--kb);background:var(--kb-l);color:var(--kb-d)}
+
+/* kumara patch */
+.patch-card{background:var(--kw);border:2px solid var(--kbr);border-radius:14px;padding:12px}
+.patch-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.patch-pct{font-family:'Fredoka One',cursive;font-size:17px;color:var(--kb)}
+.bar-bg{background:#E8EAFF;border-radius:20px;height:11px;overflow:hidden;margin-bottom:7px}
+.bar-fill{height:100%;background:var(--kb);border-radius:20px;transition:width .5s}
+
+/* task rows */
+.task-row{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--kb-l);cursor:pointer;transition:opacity .15s}
+.task-row:last-child{border-bottom:none}
+.task-row.done .task-text{text-decoration:line-through;opacity:.4}
+.task-check{width:24px;height:24px;border-radius:7px;border:2.5px solid var(--kbr);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.task-check.done{background:var(--kb);border-color:var(--kb)}
+.task-check i{font-size:13px;color:#fff;opacity:0}
+.task-check.done i{opacity:1}
+.task-text{font-size:13px;font-weight:700;color:var(--kt);flex:1}
+.task-reward{font-size:10px;font-weight:800;color:var(--km);background:var(--kb-l);padding:2px 8px;border-radius:8px;flex-shrink:0;transition:all .2s}
+.task-row.done .task-reward{background:#E8F5E9;color:#2E7D32}
+
+/* habit rows */
+.habit-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--kb-l)}
+.habit-row:last-child{border-bottom:none}
+.hcheck{width:22px;height:22px;border-radius:6px;border:2.5px solid var(--kbr);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.hcheck.done{background:var(--kg);border-color:var(--kg)}
+.hcheck i{font-size:12px;color:#fff;opacity:0}
+.hcheck.done i{opacity:1}
+
+/* add row */
+.add-row{display:flex;gap:8px;margin-top:10px}
+.add-row input{flex:1;padding:7px 10px;border:2px solid var(--kbr);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;background:var(--kbg);color:var(--kt);outline:none;transition:border .15s}
+.add-row input:focus{border-color:var(--kb)}
+.add-btn{padding:7px 14px;background:var(--kb);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:transform .1s}
+.add-btn:hover{transform:scale(1.04)}
+
+/* timeline */
+.timeline{position:relative;padding-left:8px}
+.timeline::before{content:'';position:absolute;left:26px;top:18px;bottom:18px;width:3px;background:var(--kbr);border-radius:4px}
+.tl-item{display:grid;grid-template-columns:52px 1fr;align-items:flex-start;gap:9px;padding:5px 0;position:relative}
+.tl-dot{width:52px;height:52px;border-radius:13px;border:3px solid var(--kbr);background:var(--kw);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;z-index:1}
+.tl-dot.today{border-color:var(--kb);background:var(--kb-l)}
+.tl-dot.due{border-color:var(--ky);background:var(--ky-l)}
+.tl-dot.rest{border-color:var(--kg);background:var(--kg-l)}
+.tl-dot .dlbl{font-size:8px;font-weight:900;letter-spacing:.05em;color:var(--km)}
+.tl-dot i{font-size:19px}
+.tl-tags{display:flex;flex-direction:column;gap:3px;padding-top:9px}
+.tltag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:700;background:var(--kb-l);color:var(--kb);width:fit-content}
+.tltag.g{background:var(--kg-l);color:#2E7D32}
+.tltag.o{background:var(--ko-l);color:#BF360C}
+.tltag.gr{background:#F5F5F5;color:#616161}
+.tltag i{font-size:11px}
+
+/* toast */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--kb);color:#fff;padding:10px 20px;border-radius:14px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;letter-spacing:.03em;opacity:0;pointer-events:none;transition:opacity .3s;z-index:999;white-space:nowrap}
+#toast.show{opacity:1}
+
+/* ── CALENDAR PAGE ── */
+.cal-wrap{padding:20px 24px;overflow-y:auto;height:100%}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:14px}
+.cal-hdr-cell{text-align:center;font-size:11px;font-weight:900;color:var(--km);letter-spacing:.06em;padding:4px 0}
+.cal-day{background:var(--kw);border:2px solid var(--kbr);border-radius:12px;padding:8px;min-height:80px;cursor:pointer;transition:border-color .15s}
+.cal-day:hover{border-color:var(--kb-m)}
+.cal-day.today{border-color:var(--kb);background:var(--kb-l)}
+.cal-day.other-month{opacity:.4}
+.cal-day-num{font-size:12px;font-weight:900;color:var(--kt);margin-bottom:4px}
+.cal-day.today .cal-day-num{color:var(--kb)}
+.cal-event{font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:6px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-month-nav{display:flex;align-items:center;gap:12px}
+.cal-month-nav button{background:none;border:2px solid var(--kbr);border-radius:8px;padding:4px 10px;cursor:pointer;font-size:16px;color:var(--kt);transition:border-color .15s}
+.cal-month-nav button:hover{border-color:var(--kb)}
+.cal-month-lbl{font-family:'Fredoka One',cursive;font-size:20px;color:var(--kb)}
+
+/* ── MAP PAGE ── */
+.map-canvas-wrap{position:relative;border-radius:14px;overflow:hidden;border:2px solid var(--kbr);flex-shrink:0}
+#mapSvg{width:100%;display:block;cursor:crosshair}
+.pin-tooltip{position:absolute;background:var(--kw);border:2px solid var(--kbr);border-radius:10px;padding:8px 10px;font-size:11px;font-weight:700;color:var(--kt);pointer-events:none;white-space:nowrap;display:none;z-index:10}
+.pin-tooltip .tt-name{font-size:12px;font-weight:900;color:var(--kb);margin-bottom:2px}
+.pin-tooltip .tt-cd{font-size:10px;color:var(--ko);font-weight:800}
+.map-legend{display:flex;gap:8px;flex-wrap:wrap;padding:9px 12px;background:var(--kw);border:2px solid var(--kbr);border-radius:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:var(--km)}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.cat-btn{padding:8px 6px;border:2px solid var(--kbr);border-radius:10px;font-family:'Nunito',sans-serif;font-size:10.5px;font-weight:800;background:var(--kw);color:var(--km);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s}
+.cat-btn i{font-size:17px}
+.cat-btn:hover{border-color:var(--kb-m);color:var(--kb)}
+.cat-btn.sel{border-color:var(--kb);background:var(--kb-l);color:var(--kb-d)}
+.click-hint{background:var(--kb-l);border:2px dashed var(--kb-m);border-radius:10px;padding:9px;text-align:center;font-size:11px;font-weight:800;color:var(--kb-d);transition:all .3s}
+.click-hint.set{background:var(--kg-l);color:#2E7D32;border-color:#A5D6A7}
+.drop-btn{width:100%;padding:11px;background:var(--kb);color:#fff;border:none;border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:900;cursor:pointer;transition:transform .1s,background .15s}
+.drop-btn:hover:not(:disabled){transform:scale(1.02)}
+.drop-btn:disabled{background:var(--kbr);cursor:not-allowed}
+.pin-list-item{background:var(--kbg);border:2px solid var(--kbr);border-radius:12px;padding:9px 11px;display:flex;align-items:flex-start;gap:8px}
+.pin-icon-box{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pin-icon-box i{font-size:17px}
+.pin-info{flex:1;min-width:0}
+.pin-nm{font-size:12px;font-weight:900;color:var(--kt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pin-cat{font-size:10px;font-weight:700;color:var(--km)}
+.pin-cd{font-size:10px;font-weight:800;color:var(--ko);font-variant-numeric:tabular-nums}
+
+/* ── TEA HOUSE ── */
+.tea-wrap{padding:20px 24px;overflow-y:auto;height:100%}
+.shop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.shop-card{background:var(--kw);border:2.5px solid var(--kbr);border-radius:18px;padding:14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
+.shop-card:hover{border-color:var(--kb-m);transform:translateY(-2px)}
+.shop-card.unlocked{border-color:var(--kg);background:var(--kg-l)}
+.shop-card.unlocked::after{content:'OWNED';position:absolute;top:8px;right:-14px;background:var(--kg);color:#fff;font-size:8px;font-weight:900;letter-spacing:.08em;padding:3px 20px;transform:rotate(35deg)}
+.item-art{width:72px;height:72px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0}
+.item-name{font-size:13px;font-weight:900;color:var(--kt)}
+.item-desc{font-size:10px;font-weight:700;color:var(--km);line-height:1.4}
+.item-cost{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:900;color:#B8860B}
+.item-cost i{font-size:14px}
+.buy-btn{width:100%;padding:8px;background:var(--kb);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:900;cursor:pointer;transition:transform .1s,background .15s;letter-spacing:.03em}
+.buy-btn:hover:not(:disabled){transform:scale(1.03)}
+.buy-btn:disabled{background:var(--kbr);cursor:not-allowed;color:var(--km)}
+.buy-btn.owned{background:var(--kg)}
+
+/* ── SETTINGS ── */
+.settings-wrap{padding:24px;overflow-y:auto;height:100%;max-width:600px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--kbr)}
+.setting-row:last-child{border-bottom:none}
+.setting-lbl{font-size:13px;font-weight:800;color:var(--kt)}
+.setting-sub{font-size:11px;font-weight:600;color:var(--km);margin-top:2px}
+.toggle{width:44px;height:24px;background:var(--kbr);border-radius:12px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none}
+.toggle.on{background:var(--kb)}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s}
+.toggle.on::after{left:23px}
+.danger-btn{padding:8px 16px;background:#FDECEA;color:#c0392b;border:2px solid #F5C6CB;border-radius:10px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:all .15s}
+.danger-btn:hover{background:#c0392b;color:#fff}
+
+/* notifications panel */
+.notif-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--kb-l)}
+.notif-row:last-child{border-bottom:none}
+.ndot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.ntxt{font-size:11.5px;font-weight:700;color:var(--kt);flex:1}
+.ntime{font-size:10px;color:var(--km);flex-shrink:0}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--kbr);border-radius:4px}
+
+/* form inputs */
+.f-inp{width:100%;padding:8px 10px;border:2px solid var(--kbr);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;background:var(--kw);color:var(--kt);outline:none;transition:border .15s}
+.f-inp:focus{border-color:var(--kb)}
+.f-sel{width:100%;padding:8px 10px;border:2px solid var(--kbr);border-radius:10px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;background:var(--kw);color:var(--kt);outline:none;cursor:pointer;margin-top:5px}
+.f-lbl{font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--km);margin-bottom:4px;display:block}
+.f-row{margin-bottom:10px}
+
+/* bonus banner */
+.bonus-banner{background:var(--kg-l);border:2px solid #A5D6A7;border-radius:14px;padding:11px;display:flex;align-items:center;gap:10px;display:none}
+.bonus-banner.show{display:flex}
+.bonus-banner i{font-size:21px;color:#2E7D32}
+.bonus-text{font-size:11px;font-weight:800;color:#1B5E20;line-height:1.4}
+</style>
+</head>
+<body>
+
+<div id="toast"></div>
+
+<div class="shell">
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <div class="nav-logo" onclick="navigate('dashboard')">
+      <svg width="36" height="42" viewBox="0 0 60 70" fill="none">
+        <ellipse cx="13" cy="9" rx="7" ry="6" fill="white" opacity="0.9"/>
+        <ellipse cx="47" cy="9" rx="7" ry="6" fill="white" opacity="0.9"/>
+        <path d="M7 26 Q9 8 30 8 Q51 8 53 26 L56 58 Q56 66 30 66 Q4 66 4 58 Z" fill="white" opacity="0.9"/>
+        <ellipse cx="21" cy="26" rx="5" ry="4" fill="#5B6FF5" opacity="0.4"/>
+        <ellipse cx="39" cy="26" rx="5" ry="4" fill="#5B6FF5" opacity="0.4"/>
+        <ellipse cx="21" cy="27" rx="3" ry="2" fill="#3D50D0"/>
+        <ellipse cx="39" cy="27" rx="3" ry="2" fill="#3D50D0"/>
+      </svg>
+    </div>
+    <button class="ni active" data-page="dashboard" onclick="navigate('dashboard')">
+      <i class="ti ti-layout-dashboard"></i><span>Dashboard</span>
+    </button>
+    <button class="ni" data-page="calendar" onclick="navigate('calendar')">
+      <i class="ti ti-calendar"></i><span>Calendar</span>
+    </button>
+    <button class="ni" data-page="map" onclick="navigate('map')">
+      <i class="ti ti-map-2"></i><span>Study Map</span>
+    </button>
+    <button class="ni" data-page="tea" onclick="navigate('tea')">
+      <i class="ti ti-cup"></i><span>Tea House</span>
+    </button>
+    <button class="ni" data-page="settings" onclick="navigate('settings')" style="margin-top:auto">
+      <i class="ti ti-settings"></i><span>Settings</span>
+    </button>
+    <button class="ni danger" onclick="resetAll()">
+      <i class="ti ti-refresh"></i><span>Reset</span>
+    </button>
+  </nav>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD PAGE ══ -->
+    <div id="pg-dashboard" class="page active">
+      <main class="dash-main">
+        <div class="page-header">
+          <span class="page-title">Your Progress Journey</span>
+          <span class="badge-pill" id="db-datebadge"></span>
+        </div>
+
+        <div class="stats-row cols3">
+          <div class="stat-card"><div class="stat-v" id="db-tea" style="color:#B8860B">0</div><div class="stat-l">Tea Leaves</div></div>
+          <div class="stat-v-wrap stat-card"><div class="stat-v" id="db-xp" style="color:var(--kg)">0</div><div class="stat-l">Total XP</div></div>
+          <div class="stat-card"><div class="stat-v" id="db-streak" style="color:var(--ky)">8</div><div class="stat-l">Day Streak</div></div>
+        </div>
+
+        <div id="db-toast-inline" style="display:none;background:var(--kb);color:#fff;padding:8px 14px;border-radius:12px;font-size:12px;font-weight:800;text-align:center;animation:fadeIn .3s"></div>
+
+        <!-- DAILY FOCUS -->
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+            <i class="ti ti-target" style="font-size:18px;color:var(--ko)"></i>
+            <span style="font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:var(--kt)">Daily Focus Task</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--kb-l);border-radius:12px;padding:10px 14px">
+            <span id="focus-text" style="font-size:14px;font-weight:700;color:var(--kb)">Finish Physics Practicals</span>
+            <button onclick="toggleFocus()" style="width:28px;height:28px;background:var(--kb);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s" id="focus-btn" aria-label="Complete focus task">
+              <i class="ti ti-check" style="color:#fff;font-size:15px"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- TASKS -->
+        <div class="card">
+          <div class="sec-lbl">Tasks — +10 Tea Leaves &amp; +5 XP each</div>
+          <div id="task-list"></div>
+          <div class="add-row">
+            <input class="f-inp" id="new-task-inp" placeholder="Add a task…" maxlength="50" style="background:var(--kbg)"/>
+            <button class="add-btn" onclick="addTask()">+ Add</button>
+          </div>
+        </div>
+
+        <!-- HABITS -->
+        <div class="card">
+          <div class="sec-lbl">Habit Tracker</div>
+          <div id="habit-list"></div>
+        </div>
+
+        <!-- TIMELINE -->
+        <div class="card">
+          <div class="sec-lbl">Weekly Timeline</div>
+          <div class="timeline" id="timeline"></div>
+        </div>
+      </main>
+
+      <!-- RIGHT PANEL -->
+      <aside class="dash-right">
+        <div class="ptitle">Kuma's Command Center</div>
+
+        <div class="streak-card">
+          <i class="ti ti-flame"></i>
+          <div><div class="s-num" id="db-streak2">8</div><div class="s-lbl">Day Streak</div></div>
+        </div>
+
+        <div class="mascot-wrap" id="mascot-wrap">
+          <div class="mood-badge" id="mood-badge">Calm</div>
+          <canvas id="kumaCanvas" width="96" height="108" aria-label="Kuma mascot" style="position:relative;z-index:1"></canvas>
+          <canvas id="itemCanvas" width="96" height="108" aria-label="Equipped item" style="position:absolute;pointer-events:none;z-index:2;margin-top:-108px"></canvas>
+          <div class="kuma-tip" id="kuma-tip">Just finish Physics Practicals today! (0●●0)</div>
+          <div class="equip-bar" id="equip-bar" style="display:none">
+            <div class="equip-lbl">Equipped Item</div>
+            <div class="equip-row" id="equip-row"></div>
+          </div>
+        </div>
+
+        <div class="patch-card">
+          <div class="patch-hdr">
+            <div><div class="sec-lbl" style="margin-bottom:0">Kūmara Patch</div></div>
+            <div class="patch-pct" id="patch-pct">70%</div>
+          </div>
+          <div class="bar-bg"><div class="bar-fill" id="patch-bar" style="width:70%"></div></div>
+          <div style="display:flex;gap:4px" id="kumara-icons"></div>
+        </div>
+
+        <!-- NOTIFS -->
+        <div class="card" style="padding:12px 13px">
+          <div class="sec-lbl" style="margin-bottom:8px">Upcoming Reminders</div>
+          <div class="notif-row"><div class="ndot" style="background:var(--ko)"></div><span class="ntxt">Physics Quiz</span><span class="ntime">Today 2 pm</span></div>
+          <div class="notif-row"><div class="ndot" style="background:var(--ky)"></div><span class="ntxt">Project Due</span><span class="ntime">Tue 11:59 pm</span></div>
+          <div class="notif-row"><div class="ndot" style="background:var(--kg)"></div><span class="ntxt">Boba Time!</span><span class="ntime">Wed 3 pm</span></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ══ CALENDAR PAGE ══ -->
+    <div id="pg-calendar" class="page">
+      <div class="cal-wrap">
+        <div class="page-header">
+          <span class="page-title">Calendar</span>
+          <div class="cal-month-nav">
+            <button onclick="calPrev()" aria-label="Previous month">&#8249;</button>
+            <span class="cal-month-lbl" id="cal-month-lbl"></span>
+            <button onclick="calNext()" aria-label="Next month">&#8250;</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-header"></div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+    </div>
+
+    <!-- ══ MAP PAGE ══ -->
+    <div id="pg-map" class="page">
+      <main class="map-main">
+        <div class="page-header">
+          <span class="page-title">Study Hub Map</span>
+          <span class="badge-pill">Kuma Neighbourhood</span>
+        </div>
+        <div class="stats-row cols3">
+          <div class="stat-card"><div class="stat-v" id="map-tea" style="color:#B8860B">0</div><div class="stat-l">Tea Leaves</div></div>
+          <div class="stat-card"><div class="stat-v" id="map-pins" style="color:var(--kb)">0</div><div class="stat-l">Active Pins</div></div>
+          <div class="stat-card"><div class="stat-v" id="map-bonus" style="color:var(--kg)">0</div><div class="stat-l">Community Bonus</div></div>
+        </div>
+        <div class="map-canvas-wrap" id="map-canvas-wrap">
+          <svg id="mapSvg" viewBox="0 0 560 330" xmlns="http://www.w3.org/2000/svg" aria-label="Kuma neighbourhood map" style="width:100%"></svg>
+          <div id="pinTooltip" class="pin-tooltip">
+            <div class="tt-name" id="tt-name"></div>
+            <div id="tt-cat" style="font-size:10px;color:var(--km);font-weight:700"></div>
+            <div class="tt-cd" id="tt-cd"></div>
+          </div>
+        </div>
+        <div class="map-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#5B6FF5"></div>Library</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#E91E8C"></div>Boba Shop</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#FF7043"></div>Cafe</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#4CAF50"></div>Park</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#FFB800"></div>School</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#00BCD4"></div>Online</div>
+          <span style="margin-left:auto;font-size:10px;font-weight:700;color:var(--km)">Click map to place pin</span>
+        </div>
+      </main>
+      <aside class="map-right">
+        <div class="ptitle">Drop a Meetup Pin</div>
+        <div id="map-bonus-banner" class="bonus-banner">
+          <i class="ti ti-leaf"></i>
+          <div class="bonus-text" id="map-bonus-text">Community bonus earned!</div>
+        </div>
+        <div class="card" style="background:var(--kbg)">
+          <div class="f-row">
+            <label class="f-lbl">Event Name</label>
+            <input class="f-inp" id="evt-name" type="text" placeholder="e.g. Physics Practical Prep" maxlength="40"/>
+          </div>
+          <div class="f-row">
+            <label class="f-lbl">Location Category</label>
+            <div class="cat-grid" id="cat-grid">
+              <button class="cat-btn sel" data-cat="Library" data-color="#5B6FF5" data-icon="ti-books" onclick="selCat(this)"><i class="ti ti-books"></i>Library</button>
+              <button class="cat-btn" data-cat="Boba Shop" data-color="#E91E8C" data-icon="ti-cup" onclick="selCat(this)"><i class="ti ti-cup"></i>Boba Shop</button>
+              <button class="cat-btn" data-cat="Cafe" data-color="#FF7043" data-icon="ti-coffee" onclick="selCat(this)"><i class="ti ti-coffee"></i>Cafe</button>
+              <button class="cat-btn" data-cat="Park" data-color="#4CAF50" data-icon="ti-leaf" onclick="selCat(this)"><i class="ti ti-leaf"></i>Park</button>
+              <button class="cat-btn" data-cat="School" data-color="#FFB800" data-icon="ti-school" onclick="selCat(this)"><i class="ti ti-school"></i>School</button>
+              <button class="cat-btn" data-cat="Online" data-color="#00BCD4" data-icon="ti-wifi" onclick="selCat(this)"><i class="ti ti-wifi"></i>Online</button>
+            </div>
+          </div>
+          <div class="f-row">
+            <label class="f-lbl">Countdown</label>
+            <select class="f-sel" id="evt-hours">
+              <option value="1">1 hour</option>
+              <option value="2" selected>2 hours</option>
+              <option value="3">3 hours</option>
+              <option value="6">6 hours</option>
+              <option value="12">12 hours</option>
+              <option value="24">24 hours</option>
+            </select>
+          </div>
+          <div class="click-hint" id="click-hint"><i class="ti ti-map-pin"></i> Click the map to set a location</div>
+          <div style="margin-top:10px"></div>
+          <button class="drop-btn" id="drop-btn" onclick="dropPin()" disabled>Drop Pin (+20 Tea Leaves)</button>
+        </div>
+        <div>
+          <div class="sec-lbl">Active Meetups (<span id="pin-count-lbl">0</span>)</div>
+          <div style="display:flex;flex-direction:column;gap:6px" id="pin-list"></div>
+          <div id="pin-empty" style="text-align:center;padding:20px;font-size:12px;font-weight:700;color:var(--km)">
+            <i class="ti ti-map-pin" style="font-size:24px;display:block;margin-bottom:6px"></i>No meetups yet!
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ══ TEA HOUSE PAGE ══ -->
+    <div id="pg-tea" class="page">
+      <div class="tea-wrap">
+        <div class="page-header">
+          <span class="page-title">Kuma's Tea House</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <i class="ti ti-currency-yen" style="font-size:16px;color:#B8860B"></i>
+            <span style="font-family:'Fredoka One',cursive;font-size:20px;color:#B8860B" id="shop-tea">0</span>
+            <span style="font-size:11px;font-weight:800;color:var(--km)">Tea Leaves</span>
+          </div>
+        </div>
+        <p style="font-size:13px;font-weight:700;color:var(--km);margin-top:6px">Spend your Tea Leaves on cosmetics for Kuma! Equipped items appear on the Dashboard.</p>
+        <div class="shop-grid" id="shop-grid"></div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS PAGE ══ -->
+    <div id="pg-settings" class="page">
+      <div class="settings-wrap">
+        <div class="page-header" style="margin-bottom:16px">
+          <span class="page-title">Settings</span>
+        </div>
+        <div class="card">
+          <div class="sec-lbl" style="margin-bottom:0">Preferences</div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Sound Effects</div><div class="setting-sub">Play sounds on task completion</div></div>
+            <button class="toggle" id="tog-sound" onclick="this.classList.toggle('on')" aria-label="Toggle sound"></button>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">6 PM Alert</div><div class="setting-sub">Kuma goes wide-eyed if no tasks are done by 6 PM</div></div>
+            <button class="toggle on" id="tog-alert" onclick="this.classList.toggle('on')" aria-label="Toggle alert"></button>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Streak Notifications</div><div class="setting-sub">Remind me to maintain my streak</div></div>
+            <button class="toggle on" id="tog-notif" onclick="this.classList.toggle('on')" aria-label="Toggle notifications"></button>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Compact Timeline</div><div class="setting-sub">Show fewer details in the weekly timeline</div></div>
+            <button class="toggle" id="tog-compact" onclick="this.classList.toggle('on')" aria-label="Toggle compact mode"></button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-lbl" style="margin-bottom:0">Account</div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Reset All Progress</div><div class="setting-sub">Clears Tea Leaves, XP, tasks, and map pins</div></div>
+            <button class="danger-btn" onclick="resetAll()"><i class="ti ti-refresh" style="font-size:14px;vertical-align:-2px"></i> Reset</button>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-lbl">Export Data</div><div class="setting-sub">Download your progress as JSON</div></div>
+            <button class="danger-btn" style="background:var(--kb-l);color:var(--kb);border-color:var(--kb-m)" onclick="exportData()"><i class="ti ti-download" style="font-size:14px;vertical-align:-2px"></i> Export</button>
+          </div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <div class="sec-lbl" style="margin-bottom:4px">About Kuma Organiser</div>
+          <p style="font-size:12px;font-weight:700;color:var(--km);line-height:1.6">
+            Kuma Organiser v1.0 — Built with HTML, CSS, and vanilla JavaScript.<br>
+            All data saved locally in your browser via localStorage.<br>
+            Made with love for students everywhere. (0●●0)
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</div><!-- end shell -->
+
+<script>
+// ════════════════════════════════════════════
+//  STATE ENGINE
+// ════════════════════════════════════════════
+const GKEY = 'kuma_state_v3';
+const MKEY = 'kuma_map_v2';
+const SHKEY = 'kuma_shop_v1';
+
+const DEFAULT_STATE = {
+  tea:60, xp:0, patch:70, streak:8, focusDone:false,
+  tasks:[
+    {id:1,text:'Finish Physics Practicals',done:false},
+    {id:2,text:'Complete Group Meeting notes',done:false},
+    {id:3,text:'Review History chapter',done:false},
+    {id:4,text:'Prep quiz flashcards',done:false}
+  ],
+  habits:[
+    {id:1,text:'Morning stretch',done:false},
+    {id:2,text:'Drink water',done:true},
+    {id:3,text:'5 min breathing',done:false}
+  ]
+};
+
+const SHOP_ITEMS = [
+  {id:'boba',name:'Boba Cup',desc:'A chilled milk tea for Kuma',cost:30,art:'🧋',color:'#FCE4F0',drawFn:'drawBoba'},
+  {id:'hat',name:'Explorer Hat',desc:'Adventure awaits, Kuma!',cost:50,art:'🎩',color:'#FFF8E1',drawFn:'drawHat'},
+  {id:'kiwi',name:'Kiwi Badge',desc:'NZ pride on Kuma\'s chest',cost:40,art:'🥝',color:'#E8F5E9',drawFn:'drawKiwi'},
+  {id:'scarf',name:'Study Scarf',desc:'Cozy knit scarf for focus',cost:35,art:'🧣',color:'#E8EAFF',drawFn:'drawScarf'},
+  {id:'star',name:'Star Wand',desc:'Grants +5 XP on tasks',cost:80,art:'⭐',color:'#FFFDE7',drawFn:'drawStar'},
+  {id:'cape',name:'Hero Cape',desc:'Kuma becomes a study hero',cost:100,art:'🦸',color:'#F3E5F5',drawFn:'drawCape'},
+];
+
+let gs = loadGS();
+let ms = loadMS();
+let shopOwned = loadShop();
+let equippedItem = localStorage.getItem('kuma_equipped') || null;
+let mapPendingXY = null;
+let mapSelCat = {cat:'Library',color:'#5B6FF5',icon:'ti-books'};
+let pendingDotEl = null;
+let calDate = new Date();
+
+function loadGS(){
+  try{ const r=localStorage.getItem(GKEY); if(r) return JSON.parse(r); }catch(e){}
+  return JSON.parse(JSON.stringify(DEFAULT_STATE));
+}
+function saveGS(){ try{localStorage.setItem(GKEY,JSON.stringify(gs));}catch(e){} }
+
+function loadMS(){
+  try{ const r=localStorage.getItem(MKEY); if(r) return JSON.parse(r); }catch(e){}
+  return {pins:[
+    {id:1,name:'Physics Practical Prep',cat:'Library',color:'#5B6FF5',icon:'ti-books',x:200,y:65,endsAt:Date.now()+5400000},
+    {id:2,name:'Boba & Bio notes',cat:'Boba Shop',color:'#E91E8C',icon:'ti-cup',x:65,y:185,endsAt:Date.now()+7200000},
+    {id:3,name:'Calc study circle',cat:'Cafe',color:'#FF7043',icon:'ti-coffee',x:192,y:185,endsAt:Date.now()+10800000},
+  ],bonusTotal:60};
+}
+function saveMS(){ try{localStorage.setItem(MKEY,JSON.stringify(ms));}catch(e){} }
+
+function loadShop(){
+  try{ const r=localStorage.getItem(SHKEY); if(r) return JSON.parse(r); }catch(e){}
+  return {};
+}
+function saveShop(){ try{localStorage.setItem(SHKEY,JSON.stringify(shopOwned));}catch(e){} }
+
+function resetAll(){
+  if(!confirm('Reset all progress? This clears everything.')) return;
+  localStorage.removeItem(GKEY); localStorage.removeItem(MKEY);
+  localStorage.removeItem(SHKEY); localStorage.removeItem('kuma_equipped');
+  gs=JSON.parse(JSON.stringify(DEFAULT_STATE)); ms=loadMS();
+  shopOwned={}; equippedItem=null; mapPendingXY=null;
+  renderAll(); showToast('Progress reset! Fresh start (0●●0)');
+}
+
+function exportData(){
+  const blob=new Blob([JSON.stringify({state:gs,map:ms,shop:shopOwned},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='kuma-progress.json'; a.click();
+}
+
+// ════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════
+function navigate(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pg-'+page).classList.add('active');
+  document.querySelector(`.ni[data-page="${page}"]`)?.classList.add('active');
+  if(page==='calendar') renderCalendar();
+  if(page==='map') initMap();
+  if(page==='tea') renderShop();
+}
+
+// ════════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════════
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// ════════════════════════════════════════════
+//  DASHBOARD RENDER
+// ════════════════════════════════════════════
+function renderAll(){
+  renderStats(); renderTasks(); renderHabits();
+  renderPatch(); renderKumaraIcons(); renderTimeline();
+  renderDateBadge(); renderEquipBar();
+  drawKumaMood(getCurrentMood());
+  renderShopStats();
+  renderMapStats();
+}
+
+function renderStats(){
+  const t=gs.tea;
+  document.getElementById('db-tea').textContent=t;
+  document.getElementById('db-xp').textContent=gs.xp;
+  document.getElementById('db-streak').textContent=gs.streak;
+  document.getElementById('db-streak2').textContent=gs.streak;
+  document.getElementById('shop-tea').textContent=t;
+  document.getElementById('map-tea').textContent=t;
+}
+
+function renderShopStats(){ document.getElementById('shop-tea').textContent=gs.tea; }
+function renderMapStats(){
+  document.getElementById('map-tea').textContent=gs.tea;
+  document.getElementById('map-bonus').textContent=ms.bonusTotal||0;
+  const active=ms.pins.filter(p=>p.endsAt>Date.now()).length;
+  document.getElementById('map-pins').textContent=active;
+  document.getElementById('pin-count-lbl').textContent=active;
+}
+
+function renderDateBadge(){
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const d=new Date();
+  const wn=Math.ceil(((d-new Date(d.getFullYear(),0,1))/86400000+new Date(d.getFullYear(),0,1).getDay()+1)/7);
+  document.getElementById('db-datebadge').textContent=days[d.getDay()]+' · Week '+wn;
+}
+
+function renderTasks(){
+  document.getElementById('task-list').innerHTML = gs.tasks.map(t=>`
+    <div class="task-row${t.done?' done':''}" onclick="toggleTask(${t.id})">
+      <div class="task-check${t.done?' done':''}"><i class="ti ti-check"></i></div>
+      <span class="task-text">${esc(t.text)}</span>
+      <span class="task-reward">${t.done?'+10 Tea +5 XP':'+10 / +5'}</span>
+    </div>
+  `).join('');
+}
+
+function renderHabits(){
+  document.getElementById('habit-list').innerHTML = gs.habits.map(h=>`
+    <div class="habit-row">
+      <div class="hcheck${h.done?' done':''}" onclick="toggleHabit(${h.id})" role="checkbox" aria-checked="${h.done}" aria-label="${esc(h.text)}">
+        <i class="ti ti-check"></i>
+      </div>
+      <span style="font-size:13px;font-weight:600;color:var(--kt)">${esc(h.text)}</span>
+    </div>
+  `).join('');
+}
+
+function renderPatch(){
+  const p=Math.min(100,Math.round(gs.patch));
+  document.getElementById('patch-pct').textContent=p+'%';
+  document.getElementById('patch-bar').style.width=p+'%';
+}
+
+function renderKumaraIcons(){
+  const p=Math.min(100,gs.patch);
+  const filled=Math.round(p/25);
+  let html='';
+  for(let i=0;i<4;i++){
+    html+=`<svg width="20" height="20" viewBox="0 0 20 20" style="opacity:${i<filled?1:.25}" aria-hidden="true">
+      <ellipse cx="10" cy="12" rx="7" ry="5" fill="#A0522D"/>
+      <ellipse cx="10" cy="9" rx="5" ry="4" fill="#C0724D"/>
+      <ellipse cx="10" cy="7" rx="2" ry="1.5" fill="#E8A87C"/>
+    </svg>`;
+  }
+  document.getElementById('kumara-icons').innerHTML=html;
+}
+
+const TIMELINE_DATA=[
+  {day:'MON',cls:'today',icon:'ti-calendar-event',color:'var(--kb)',tags:[
+    {cls:'g',icon:'ti-circle-filled',text:'Physics Quiz'},
+    {cls:'',icon:'ti-users',text:'Group Meeting'},
+    {cls:'gr',icon:'ti-clock-hour-4',text:'History (pending)'}
+  ]},
+  {day:'TUE',cls:'due',icon:'ti-trophy',color:'var(--ky)',tags:[{cls:'o',icon:'ti-alert-circle',text:'Project Due!'}]},
+  {day:'WED',cls:'rest',icon:'ti-leaf',color:'var(--kg)',tags:[
+    {cls:'g',icon:'ti-heart',text:'Relax (5 min)'},
+    {cls:'g',icon:'ti-cup',text:'Boba Time!'}
+  ]},
+  {day:'THU',cls:'',icon:'ti-bell',color:'var(--ko)',tags:[{cls:'o',icon:'ti-book-2',text:'Quiz Prep'}]},
+  {day:'FRI',cls:'due',icon:'ti-notebook',color:'var(--ko)',tags:[{cls:'o',icon:'ti-clock',text:'Due 11:59 PM'}]},
+  {day:'WKND',cls:'rest',icon:'ti-tent',color:'var(--kteal)',tags:[{cls:'g',icon:'ti-moon',text:'Rest & recharge'}]},
+];
+
+function renderTimeline(){
+  document.getElementById('timeline').innerHTML=TIMELINE_DATA.map(d=>`
+    <div class="tl-item">
+      <div class="tl-dot ${d.cls}"><span class="dlbl">${d.day}</span><i class="ti ${d.icon}" style="color:${d.color}"></i></div>
+      <div class="tl-tags">${d.tags.map(t=>`<span class="tltag ${t.cls}"><i class="ti ${t.icon}"></i>${t.text}</span>`).join('')}</div>
+    </div>
+  `).join('');
+}
+
+// ════════════════════════════════════════════
+//  TASK / HABIT ACTIONS
+// ════════════════════════════════════════════
+function toggleTask(id){
+  const task=gs.tasks.find(t=>t.id===id); if(!task) return;
+  task.done=!task.done;
+  if(task.done){ gs.tea+=10; gs.xp+=5; gs.patch=Math.min(100,gs.patch+5); showToast('+10 Tea Leaves & +5 XP!'); triggerMood('celebrate'); }
+  else{ gs.tea=Math.max(0,gs.tea-10); gs.xp=Math.max(0,gs.xp-5); gs.patch=Math.max(0,gs.patch-5); }
+  saveGS(); renderAll();
+}
+
+function toggleHabit(id){
+  const h=gs.habits.find(x=>x.id===id); if(!h) return;
+  h.done=!h.done;
+  if(h.done){ gs.tea+=5; gs.xp+=2; showToast('+5 Tea Leaves & +2 XP for great habits!'); triggerMood('celebrate'); }
+  else{ gs.tea=Math.max(0,gs.tea-5); gs.xp=Math.max(0,gs.xp-2); }
+  saveGS(); renderAll();
+}
+
+function addTask(){
+  const inp=document.getElementById('new-task-inp');
+  const text=inp.value.trim(); if(!text) return;
+  gs.tasks.push({id:Date.now(),text,done:false});
+  inp.value=''; saveGS(); renderTasks(); showToast('Task added!');
+}
+document.getElementById('new-task-inp').addEventListener('keydown',e=>{ if(e.key==='Enter') addTask(); });
+
+let focusDone=false;
+function toggleFocus(){
+  focusDone=!focusDone;
+  const txt=document.getElementById('focus-text');
+  const btn=document.getElementById('focus-btn');
+  txt.style.textDecoration=focusDone?'line-through':'none';
+  txt.style.opacity=focusDone?'.4':'1';
+  btn.style.background=focusDone?'var(--kg)':'var(--kb)';
+  if(focusDone){ gs.tea+=15; gs.xp+=8; saveGS(); renderAll(); showToast('+15 Tea Leaves & +8 XP for Focus Task!'); triggerMood('celebrate'); }
+}
+
+// ════════════════════════════════════════════
+//  KUMA MASCOT & MOOD
+// ════════════════════════════════════════════
+let moodTimer;
+function getCurrentMood(){
+  const h=new Date().getHours();
+  const done=gs.tasks.filter(t=>t.done).length;
+  if(document.getElementById('tog-alert')?.classList.contains('on') && h>=18 && done===0) return 'alert';
+  return 'default';
+}
+
+function triggerMood(mood){
+  drawKumaMood(mood);
+  clearTimeout(moodTimer);
+  moodTimer=setTimeout(()=>{ drawKumaMood(getCurrentMood()); },3000);
+}
+
+function drawKumaMood(mood){
+  const wrap=document.getElementById('mascot-wrap');
+  const badge=document.getElementById('mood-badge');
+  const tip=document.getElementById('kuma-tip');
+  const canvas=document.getElementById('kumaCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,96,108);
+  wrap.className='mascot-wrap'+(mood==='celebrate'?' celebrate':mood==='alert'?' alert':'');
+  badge.className='mood-badge'+(mood==='celebrate'?' celebrate':mood==='alert'?' alert':'');
+  if(mood==='celebrate'){ badge.textContent='Celebrating!'; tip.textContent='Woohoo! You crushed it! (^●●^)'; }
+  else if(mood==='alert'){ badge.textContent='Wide-eyed!'; tip.textContent='It\'s past 6 PM — get to it! (O●●O)'; }
+  else { badge.textContent='Calm'; tip.textContent='Just finish Physics Practicals today! (0●●0)'; }
+  drawKumaCanvas(ctx, mood);
+  drawEquippedItem();
+}
+
+function drawKumaCanvas(ctx,mood){
+  const b='#5B6FF5',dk='#3D50D0',w='#FFFFFF',acc='#FFB800';
+  ctx.save();
+  if(mood==='celebrate'){
+    ctx.strokeStyle=acc; ctx.lineWidth=2;
+    for(let i=0;i<6;i++){
+      const a=i*60*Math.PI/180;
+      ctx.beginPath(); ctx.moveTo(48+28*Math.cos(a),54+28*Math.sin(a));
+      ctx.lineTo(48+34*Math.cos(a),54+34*Math.sin(a)); ctx.stroke();
+    }
+  }
+  ctx.fillStyle=b;
+  ctx.beginPath(); ctx.ellipse(22,12,9,8,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(74,12,9,8,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle=b;
+  ctx.beginPath();
+  ctx.moveTo(10,38); ctx.quadraticCurveTo(12,10,48,10);
+  ctx.quadraticCurveTo(84,10,86,38); ctx.lineTo(90,86);
+  ctx.quadraticCurveTo(90,98,48,98); ctx.quadraticCurveTo(6,98,6,86);
+  ctx.closePath(); ctx.fill();
+  if(mood==='alert'){
+    ctx.fillStyle=w;
+    ctx.beginPath(); ctx.ellipse(33,38,11,11,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(63,38,11,11,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=dk;
+    ctx.beginPath(); ctx.ellipse(33,38,7,7,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(63,38,7,7,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=w;
+    ctx.beginPath(); ctx.ellipse(35,36,2.5,2.5,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(65,36,2.5,2.5,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=w; ctx.lineWidth=2.5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(36,62); ctx.lineTo(60,62); ctx.stroke();
+  } else if(mood==='celebrate'){
+    ctx.fillStyle=w;
+    ctx.beginPath(); ctx.ellipse(33,38,10,8,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(63,38,10,8,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=dk;
+    ctx.beginPath(); ctx.ellipse(33,39,6,6,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(63,39,6,6,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=w;
+    ctx.beginPath(); ctx.ellipse(34,37,2,2,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(64,37,2,2,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=w; ctx.strokeStyle='#8B9BF8'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(48,60,13,0,Math.PI); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=acc;
+    ctx.beginPath(); ctx.arc(80,30,9,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=w; ctx.font='bold 11px Nunito,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('!',80,34);
+  } else {
+    ctx.fillStyle=w;
+    ctx.beginPath(); ctx.ellipse(33,38,10,8,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(63,38,10,8,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=dk;
+    ctx.beginPath(); ctx.ellipse(33,39,6,5,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(63,39,6,5,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=w;
+    ctx.beginPath(); ctx.ellipse(34,38,2,2,0,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(64,38,2,2,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle=w; ctx.lineWidth=2.5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(37,60); ctx.lineTo(59,60); ctx.stroke();
+    ctx.fillStyle='rgba(255,255,255,0.18)';
+    ctx.beginPath(); ctx.ellipse(48,60,16,7,0,0,Math.PI*2); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// item canvas overlay
+function drawEquippedItem(){
+  const canvas=document.getElementById('itemCanvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,96,108);
+  if(!equippedItem) return;
+  ctx.save();
+  if(equippedItem==='boba'){
+    ctx.fillStyle='#FCE4F0'; ctx.strokeStyle='#E91E8C'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(56,55,28,32,6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#E91E8C';
+    ctx.beginPath(); ctx.roundRect(56,55,28,8,6); ctx.fill();
+    ctx.fillStyle='white'; ctx.font='bold 14px Nunito';
+    ctx.fillText('🧋',56,88);
+  } else if(equippedItem==='hat'){
+    ctx.fillStyle='#3D2B0E'; ctx.strokeStyle='#6B4C2A'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(48,14,28,6,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#3D2B0E';
+    ctx.beginPath(); ctx.roundRect(32,2,32,16,4); ctx.fill();
+    ctx.strokeStyle='#6B4C2A'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(32,2,32,16,4); ctx.stroke();
+    ctx.fillStyle='#FFB800'; ctx.font='bold 10px Arial';
+    ctx.fillText('🎩',34,16);
+  } else if(equippedItem==='kiwi'){
+    ctx.fillStyle='#4CAF50'; ctx.strokeStyle='#2E7D32'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.arc(76,80,12,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='white'; ctx.font='14px Arial';
+    ctx.fillText('🥝',65,86);
+  } else if(equippedItem==='scarf'){
+    ctx.fillStyle='#5B6FF5'; ctx.strokeStyle='#3D50D0'; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.roundRect(20,88,56,10,5); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#E8EAFF';
+    for(let i=0;i<8;i++){ ctx.beginPath(); ctx.arc(24+i*7,93,2,0,Math.PI*2); ctx.fill(); }
+    ctx.fillStyle='#5B6FF5';
+    ctx.beginPath(); ctx.roundRect(14,84,10,18,4); ctx.fill();
+    ctx.stroke();
+  } else if(equippedItem==='star'){
+    drawStar5(ctx,78,24,10,4,'#FFD700','#FFA000');
+  } else if(equippedItem==='cape'){
+    ctx.fillStyle='#7C4DFF'; ctx.strokeStyle='#512DA8'; ctx.lineWidth=1.5;
+    ctx.beginPath();
+    ctx.moveTo(20,50); ctx.lineTo(10,105); ctx.lineTo(48,90); ctx.lineTo(86,105); ctx.lineTo(76,50);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#B39DDB';
+    ctx.beginPath(); ctx.moveTo(28,50); ctx.lineTo(20,95); ctx.lineTo(48,82); ctx.lineTo(48,50); ctx.fill();
+  }
+  ctx.restore();
+}
+
+function drawStar5(ctx,cx,cy,r,ir,fill,stroke){
+  ctx.beginPath();
+  for(let i=0;i<10;i++){
+    const a=Math.PI/5*i-Math.PI/2;
+    const rad=i%2===0?r:ir;
+    i===0?ctx.moveTo(cx+rad*Math.cos(a),cy+rad*Math.sin(a)):ctx.lineTo(cx+rad*Math.cos(a),cy+rad*Math.sin(a));
+  }
+  ctx.closePath(); ctx.fillStyle=fill; ctx.fill();
+  ctx.strokeStyle=stroke; ctx.lineWidth=1.5; ctx.stroke();
+}
+
+// ════════════════════════════════════════════
+//  EQUIP BAR
+// ════════════════════════════════════════════
+function renderEquipBar(){
+  const owned=SHOP_ITEMS.filter(i=>shopOwned[i.id]);
+  const bar=document.getElementById('equip-bar');
+  const row=document.getElementById('equip-row');
+  if(owned.length===0){ bar.style.display='none'; return; }
+  bar.style.display='block';
+  row.innerHTML=`
+    <div class="equip-chip${!equippedItem?' active':''}" onclick="equipItem(null)">None</div>
+    ${owned.map(i=>`<div class="equip-chip${equippedItem===i.id?' active':''}" onclick="equipItem('${i.id}')">${i.art}</div>`).join('')}
+  `;
+}
+
+function equipItem(id){
+  equippedItem=id;
+  localStorage.setItem('kuma_equipped',id||'');
+  renderEquipBar(); drawEquippedItem();
+  if(id) showToast('Equipped '+SHOP_ITEMS.find(x=>x.id===id)?.name+'!');
+}
+
+// ════════════════════════════════════════════
+//  CALENDAR
+// ════════════════════════════════════════════
+const CAL_EVENTS={
+  [fmtDate(new Date())]:['Physics Quiz','Group Meeting'],
+  [fmtDate(addDays(new Date(),1))]:['Project Due!'],
+  [fmtDate(addDays(new Date(),2))]:['Boba Time!','Relax'],
+  [fmtDate(addDays(new Date(),3))]:['Quiz Prep'],
+  [fmtDate(addDays(new Date(),4))]:['Physics Practical Due'],
+};
+const EVENT_COLORS=['#5B6FF5','#E91E8C','#FF7043','#4CAF50','#FFB800'];
+
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
+
+function renderCalendar(){
+  const y=calDate.getFullYear(), m=calDate.getMonth();
+  const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-lbl').textContent=months[m]+' '+y;
+  const hdr=document.getElementById('cal-header');
+  const grid=document.getElementById('cal-grid');
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  hdr.innerHTML=days.map(d=>`<div class="cal-hdr-cell">${d}</div>`).join('');
+  const first=new Date(y,m,1);
+  let startDow=(first.getDay()+6)%7;
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const today=fmtDate(new Date());
+  let html='';
+  for(let i=0;i<startDow;i++){
+    const d=new Date(y,m,1-startDow+i);
+    html+=`<div class="cal-day other-month"><div class="cal-day-num">${d.getDate()}</div></div>`;
+  }
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday=dateStr===today;
+    const events=CAL_EVENTS[dateStr]||[];
+    html+=`<div class="cal-day${isToday?' today':''}">
+      <div class="cal-day-num">${d}</div>
+      ${events.map((e,i)=>`<div class="cal-event" style="background:${EVENT_COLORS[i%EVENT_COLORS.length]}22;color:${EVENT_COLORS[i%EVENT_COLORS.length]}">${e}</div>`).join('')}
+    </div>`;
+  }
+  const remaining=(7-((startDow+daysInMonth)%7))%7;
+  for(let i=1;i<=remaining;i++) html+=`<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
+  grid.innerHTML=html;
+}
+
+function calPrev(){ calDate.setMonth(calDate.getMonth()-1); renderCalendar(); }
+function calNext(){ calDate.setMonth(calDate.getMonth()+1); renderCalendar(); }
+
+// ════════════════════════════════════════════
+//  MAP
+// ════════════════════════════════════════════
+const MAP_W=560, MAP_H=330;
+const MAP_BUILDINGS=[
+  {x:30,y:22,w:80,h:52,label:'School',color:'#FFF9C4',bc:'#F9A825'},
+  {x:160,y:16,w:70,h:44,label:'Library',color:'#E8EAFF',bc:'#5B6FF5'},
+  {x:288,y:12,w:90,h:48,label:'Community\nCentre',color:'#F3E5F5',bc:'#9C27B0'},
+  {x:420,y:18,w:100,h:52,label:'Sports Hall',color:'#F1F8E9',bc:'#8BC34A'},
+  {x:30,y:148,w:65,h:48,label:"Kuma's\nBoba Shop",color:'#FCE4F0',bc:'#E91E8C'},
+  {x:152,y:144,w:75,h:52,label:'Cafe',color:'#FBE9E7',bc:'#FF7043'},
+  {x:298,y:138,w:80,h:58,label:'Supermart',color:'#E0F7FA',bc:'#00BCD4'},
+  {x:428,y:132,w:90,h:62,label:'Tech Hub',color:'#EDE7F6',bc:'#7C4DFF'},
+  {x:30,y:262,w:95,h:60,label:'Student\nResidences',color:'#E8EAF6',bc:'#3F51B5'},
+  {x:182,y:266,w:78,h:56,label:'Gym',color:'#E8F5E9',bc:'#4CAF50'},
+  {x:325,y:262,w:70,h:62,label:'Book\nShop',color:'#FFF3E0',bc:'#FF9800'},
+  {x:438,y:256,w:82,h:68,label:'Food\nCourt',color:'#FFF8E1',bc:'#FFC107'},
+];
+const MAP_ROADS=[
+  {x1:0,y1:108,x2:560,y2:108},{x1:0,y1:214,x2:560,y2:214},
+  {x1:128,y1:0,x2:128,y2:330},{x1:270,y1:0,x2:270,y2:330},{x1:412,y1:0,x2:412,y2:330},
+];
+let mapInitialized=false;
+
+function initMap(){
+  if(mapInitialized) return;
+  mapInitialized=true;
+  buildMapSVG();
+}
+
+function buildMapSVG(){
+  const svg=document.getElementById('mapSvg');
+  let h=`<rect width="560" height="330" fill="#F4F6FF"/>`;
+  h+=`<polygon points="0,285 0,330 160,330 160,315 80,300 35,292" fill="#BBDEFB" stroke="#90CAF9" stroke-width="1"/>`;
+  h+=`<rect x="133" y="112" width="130" height="96" rx="8" fill="#D4EDDA" stroke="#A5D6A7" stroke-width="1"/>`;
+  h+=`<text x="198" y="157" text-anchor="middle" font-size="9" font-weight="800" fill="#2E7D32" font-family="Nunito,sans-serif" letter-spacing="0.06em">Kuma Park</text>`;
+  h+=`<text x="198" y="174" text-anchor="middle" font-size="14" fill="#4CAF50">✿</text>`;
+  MAP_ROADS.forEach(r=>{
+    h+=`<line x1="${r.x1}" y1="${r.y1}" x2="${r.x2}" y2="${r.y2}" stroke="#D8DCFF" stroke-width="11" stroke-linecap="round"/>`;
+    h+=`<line x1="${r.x1}" y1="${r.y1}" x2="${r.x2}" y2="${r.y2}" stroke="#ECEEFF" stroke-width="5" stroke-linecap="round" stroke-dasharray="7 7"/>`;
+  });
+  MAP_BUILDINGS.forEach(b=>{
+    h+=`<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="6" fill="${b.color}" stroke="${b.bc}" stroke-width="1.5"/>`;
+    const lines=b.label.split('\n');
+    const ty=b.y+b.h/2-(lines.length-1)*7;
+    lines.forEach((ln,i)=>{ h+=`<text x="${b.x+b.w/2}" y="${ty+i*12}" text-anchor="middle" font-size="8" font-weight="800" fill="${b.bc}" font-family="Nunito,sans-serif">${ln}</text>`; });
+  });
+  h+=`<g id="pinLayer"></g>`;
+  svg.innerHTML=h;
+  svg.addEventListener('click',onMapClick);
+  svg.addEventListener('mousemove',onMapMove);
+  svg.addEventListener('mouseleave',()=>{ document.getElementById('pinTooltip').style.display='none'; });
+  ms.pins.forEach(p=>renderMapPin(p,false));
+}
+
+function svgCoords(e){
+  const rect=document.getElementById('mapSvg').getBoundingClientRect();
+  const scaleX=MAP_W/rect.width, scaleY=MAP_H/rect.height;
+  return {x:Math.round((e.clientX-rect.left)*scaleX), y:Math.round((e.clientY-rect.top)*scaleY)};
+}
+
+function onMapClick(e){
+  const {x,y}=svgCoords(e);
+  if(x<0||x>MAP_W||y<0||y>MAP_H) return;
+  mapPendingXY={x,y};
+  const hint=document.getElementById('click-hint');
+  hint.innerHTML=`<i class="ti ti-check"></i> Location set (${x}, ${y}) — ready to drop!`;
+  hint.className='click-hint set';
+  if(pendingDotEl) pendingDotEl.remove();
+  const layer=document.getElementById('pinLayer');
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.innerHTML=`<circle cx="${x}" cy="${y}" r="10" fill="rgba(91,111,245,.15)" stroke="#5B6FF5" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="${x}" cy="${y}" r="4" fill="#5B6FF5"/>`;
+  layer.appendChild(g); pendingDotEl=g;
+  updateDropBtn();
+}
+
+function onMapMove(e){
+  const layer=document.getElementById('pinLayer');
+  if(!layer) return;
+  const pins=layer.querySelectorAll('[data-pin-id]');
+  const rect=document.getElementById('mapSvg').getBoundingClientRect();
+  const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+  let hit=null;
+  pins.forEach(p=>{
+    const cx=parseFloat(p.getAttribute('data-cx')), cy=parseFloat(p.getAttribute('data-cy'));
+    const px=(cx/MAP_W)*rect.width, py=(cy/MAP_H)*rect.height;
+    if(Math.hypot(mx-px,my-py)<18) hit=p;
+  });
+  const tt=document.getElementById('pinTooltip');
+  const wrap=document.getElementById('map-canvas-wrap');
+  if(hit){
+    const id=hit.getAttribute('data-pin-id');
+    const pin=ms.pins.find(p=>p.id==id);
+    if(pin){
+      document.getElementById('tt-name').textContent=pin.name;
+      document.getElementById('tt-cat').textContent=pin.cat;
+      document.getElementById('tt-cd').textContent=getCountdown(pin.endsAt);
+      const bRect=wrap.getBoundingClientRect();
+      tt.style.left=Math.min(e.clientX-bRect.left+10,bRect.width-160)+'px';
+      tt.style.top=Math.max(e.clientY-bRect.top-60,4)+'px';
+      tt.style.display='block';
+    }
+  } else { tt.style.display='none'; }
+}
+
+function selCat(btn){
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  mapSelCat={cat:btn.dataset.cat,color:btn.dataset.color,icon:btn.dataset.icon};
+  updateDropBtn();
+}
+
+function updateDropBtn(){
+  const name=document.getElementById('evt-name').value.trim();
+  document.getElementById('drop-btn').disabled=!(name&&mapPendingXY&&mapSelCat);
+}
+document.getElementById('evt-name').addEventListener('input',updateDropBtn);
+
+function dropPin(){
+  const name=document.getElementById('evt-name').value.trim();
+  if(!name||!mapPendingXY||!mapSelCat) return;
+  const hours=parseInt(document.getElementById('evt-hours').value);
+  const pin={id:Date.now(),name,cat:mapSelCat.cat,color:mapSelCat.color,icon:mapSelCat.icon,x:mapPendingXY.x,y:mapPendingXY.y,endsAt:Date.now()+hours*3600000};
+  ms.pins.push(pin);
+  gs.tea+=20; ms.bonusTotal=(ms.bonusTotal||0)+20;
+  renderMapPin(pin,true);
+  if(pendingDotEl){ pendingDotEl.remove(); pendingDotEl=null; }
+  mapPendingXY=null;
+  document.getElementById('evt-name').value='';
+  const hint=document.getElementById('click-hint');
+  hint.innerHTML='<i class="ti ti-map-pin"></i> Click the map to set a location';
+  hint.className='click-hint';
+  saveGS(); saveMS(); renderMapStats(); renderMapPinList();
+  showMapBonus(name,mapSelCat.cat);
+  updateDropBtn();
+}
+
+function renderMapPin(pin,animate){
+  const layer=document.getElementById('pinLayer'); if(!layer) return;
+  const isDark=isColorDark(pin.color);
+  const tc=isDark?'#fff':'#1a1a2e';
+  const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.setAttribute('data-pin-id',pin.id); g.setAttribute('data-cx',pin.x); g.setAttribute('data-cy',pin.y);
+  g.style.cursor='pointer';
+  g.innerHTML=`<circle cx="${pin.x}" cy="${pin.y}" r="13" fill="${pin.color}" stroke="white" stroke-width="2"/><circle cx="${pin.x}" cy="${pin.y}" r="13" fill="none" stroke="${pin.color}" stroke-width="1" opacity="0.4"/><text x="${pin.x}" y="${pin.y+1}" text-anchor="middle" dominant-baseline="middle" font-size="10" fill="${tc}" font-family="Nunito,sans-serif">●</text>`;
+  if(animate){
+    const a=document.createElementNS('http://www.w3.org/2000/svg','animateTransform');
+    a.setAttribute('attributeName','transform'); a.setAttribute('type','scale');
+    a.setAttribute('from','0'); a.setAttribute('to','1'); a.setAttribute('dur','0.3s');
+    a.setAttribute('additive','sum'); a.setAttribute('calcMode','spline');
+    a.setAttribute('keySplines','0.34 1.56 0.64 1'); a.setAttribute('transformOrigin',`${pin.x} ${pin.y}`);
+    g.appendChild(a);
+  }
+  layer.appendChild(g);
+}
+
+function isColorDark(hex){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return(r*299+g*587+b*114)/1000<140; }
+
+function renderMapPinList(){
+  const list=document.getElementById('pin-list');
+  const empty=document.getElementById('pin-empty');
+  const active=ms.pins.filter(p=>p.endsAt>Date.now());
+  document.getElementById('map-pins').textContent=active.length;
+  document.getElementById('pin-count-lbl').textContent=active.length;
+  if(!active.length){ list.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  list.innerHTML=active.map(p=>`
+    <div class="pin-list-item">
+      <div class="pin-icon-box" style="background:${p.color}22;border:1.5px solid ${p.color}">
+        <i class="ti ${p.icon}" style="color:${p.color}"></i>
+      </div>
+      <div class="pin-info">
+        <div class="pin-nm">${esc(p.name)}</div>
+        <div class="pin-cat">${esc(p.cat)}</div>
+        <div class="pin-cd" id="cd-${p.id}">${getCountdown(p.endsAt)}</div>
+      </div>
+      <button onclick="removePin(${p.id})" style="background:none;border:none;cursor:pointer;color:var(--km);font-size:15px;padding:2px;flex-shrink:0" aria-label="Remove pin">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+  `).join('');
+}
+
+function removePin(id){
+  ms.pins=ms.pins.filter(p=>p.id!==id);
+  const el=document.querySelector(`[data-pin-id="${id}"]`); if(el) el.remove();
+  saveMS(); renderMapStats(); renderMapPinList();
+}
+
+function showMapBonus(name,cat){
+  const b=document.getElementById('map-bonus-banner');
+  document.getElementById('map-bonus-text').textContent=`+20 Tea Leaves! "${name}" at ${cat} is now live.`;
+  b.classList.add('show');
+  setTimeout(()=>b.classList.remove('show'),4000);
+}
+
+function getCountdown(endsAt){
+  const diff=endsAt-Date.now(); if(diff<=0) return 'Ended';
+  const h=Math.floor(diff/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+  if(h>0) return `${h}h ${m}m remaining`;
+  if(m>0) return `${m}m ${s}s remaining`;
+  return `${s}s remaining`;
+}
+
+function tickCountdowns(){
+  ms.pins.forEach(p=>{ const el=document.getElementById('cd-'+p.id); if(el) el.textContent=getCountdown(p.endsAt); });
+  const expired=ms.pins.filter(p=>p.endsAt<=Date.now());
+  if(expired.length){
+    expired.forEach(p=>{ ms.pins=ms.pins.filter(x=>x.id!==p.id); const el=document.querySelector(`[data-pin-id="${p.id}"]`); if(el) el.remove(); });
+    saveMS(); renderMapPinList();
+  }
+}
+
+// ════════════════════════════════════════════
+//  TEA HOUSE / SHOP
+// ════════════════════════════════════════════
+function renderShop(){
+  document.getElementById('shop-tea').textContent=gs.tea;
+  const grid=document.getElementById('shop-grid');
+  grid.innerHTML=SHOP_ITEMS.map(item=>{
+    const owned=!!shopOwned[item.id];
+    return `
+    <div class="shop-card${owned?' unlocked':''}">
+      <div class="item-art" style="background:${item.color}">${item.art}</div>
+      <div class="item-name">${item.name}</div>
+      <div class="item-desc">${item.desc}</div>
+      <div class="item-cost"><i class="ti ti-currency-yen"></i>${item.cost} Tea Leaves</div>
+      <button class="buy-btn${owned?' owned':''}" onclick="buyItem('${item.id}')" ${owned?'disabled':''}>
+        ${owned?'Owned — Go Equip!':'Buy'}
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function buyItem(id){
+  const item=SHOP_ITEMS.find(x=>x.id===id); if(!item) return;
+  if(shopOwned[id]){ showToast('Already owned! Head to Dashboard to equip it.'); return; }
+  if(gs.tea<item.cost){ showToast(`Need ${item.cost-gs.tea} more Tea Leaves!`); return; }
+  gs.tea-=item.cost;
+  shopOwned[id]=true;
+  saveGS(); saveShop();
+  renderShop(); renderStats(); renderEquipBar();
+  showToast(`${item.art} ${item.name} unlocked! Equip it on the Dashboard.`);
+}
+
+// ════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════
+renderAll();
+renderMapPinList();
+setInterval(tickCountdowns,1000);
+setInterval(()=>{ drawKumaMood(getCurrentMood()); },60000);
+</script>
+</body>
+</html>
